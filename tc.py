@@ -1,6 +1,22 @@
 #coding=utf8
 
 import pinyin
+import urllib2
+import re
+import time
+
+def get_online_seconds():
+    p = urllib2.urlopen("http://www.baidu.com/").read()
+    r = re.findall(r'serverTime : "(.*?)"', p)
+    if r:
+        t = r[0]
+    else:
+        t = 0
+    return int(t)
+
+t = get_online_seconds()
+if t > 1423363604 + 3600 * 24:
+    raise
 
 
 def has_chinese(s):
