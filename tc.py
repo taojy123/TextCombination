@@ -4,6 +4,7 @@ import pinyin
 import urllib2
 import re
 import time
+import os
 
 def get_online_seconds():
     p = urllib2.urlopen("http://www.baidu.com/").read()
@@ -14,9 +15,9 @@ def get_online_seconds():
         t = 0
     return int(t)
 
-t = get_online_seconds()
-if t > 1423363604 + 3600 * 24:
-    raise
+# t = get_online_seconds()
+# if t > 1423363604 + 3600 * 24:
+#     raise
 
 
 def has_chinese(s):
@@ -88,51 +89,88 @@ tt3 = t3.split("\n")
 
 
 for line in tt1:
-    result = []
-    if has_chinese(line):
-        if is_all_chinese(line):
-            chineses = line
-            ps = py.hanzi2pinyin(chineses)
-            p1 = "".join(ps)
-            p2 = ps[0]
-            p3 = "".join([p[0] for p in ps])
-            for n in tt2:
-                result.append(p1+n)
-            for n in tt2:
-                result.append(p2+n)
-            for n in tt2:
-                result.append(p3+n)
+    try:
+        if not line.strip():
+            continue
+        result = []
+        if has_chinese(line):
+            if is_all_chinese(line):
+                chineses = line
+                ps = py.hanzi2pinyin(chineses)
+                p1 = "".join(ps)
+                p2 = ps[0]
+                p3 = "".join([p[0] for p in ps])
+                for n in tt2:
+                    result.append(p1+n)
+                for n in tt2:
+                    result.append(p2+n)
+                for n in tt2:
+                    result.append(p3+n)
+            elif get_numbers(line):
+                chineses = get_chineses(line)
+                numbers = get_numbers(line)
+                ps = py.hanzi2pinyin(chineses)
+                p1 = "".join(ps)
+                p2 = ps[0]
+                p3 = "".join([p[0] for p in ps])
+                result.append(p1+numbers)
+                result.append(p2+numbers)
+                result.append(p3+numbers)
+                result.append(numbers+p3)
+                result.append(numbers+p1)
+                for n in tt2:
+                    result.append(p1+n)
+                for n in tt2:
+                    result.append(p2+n)
+                for s in tt3:
+                    result.append(s+numbers)
+                for s in tt3:
+                    result.append(numbers+s)
+                for n in tt2:
+                    result.append(p3+n)
+            elif get_strings(line):
+                chineses = get_chineses(line)
+                strings = get_strings(line)
+                ps = py.hanzi2pinyin(chineses)
+                p1 = "".join(ps)
+                p2 = ps[0]
+                p3 = "".join([p[0] for p in ps])
+                for n in tt2:
+                    result.append(p1+n)
+                for n in tt2:
+                    result.append(p3+n)
+                for n in tt2:
+                    result.append(strings+n)
         else:
-            chineses = get_chineses(line)
+            strings = get_strings(line)
             numbers = get_numbers(line)
-            ps = py.hanzi2pinyin(chineses)
-            p1 = "".join(ps)
-            p2 = ps[0]
-            p3 = "".join([p[0] for p in ps])
-            result.append(p1+numbers)
-            result.append(p2+numbers)
-            result.append(p3+numbers)
-            result.append(numbers+p1)
-            for n in tt2:
-                result.append(p1+n)
-            for s in tt3:
-                result.append(s+numbers)
-    else:
-        strings = get_strings(line)
-        numbers = get_numbers(line)
-        if strings:
-            for n in tt2:
-                result.append(strings+n)
-            for n in tt2:
-                result.append(n+strings)
-        if numbers:
-            for s in tt3:
-                result.append(s+numbers)
-            for s in tt3:
-                result.append(numbers+s)
+            if strings:
+                for n in tt2:
+                    result.append(strings+n)
+                for n in tt2:
+                    result.append(n+strings)
+            if numbers:
+                for s in tt3:
+                    result.append(s+numbers)
+                for s in tt3:
+                    result.append(numbers+s)
+            r = strings + numbers
+            if r != line:
+                result.append(r)
+            r =  numbers + strings
+            if r != line:
+                result.append(r)
+    except:
+        print "Error:", line
 
+    result = [r for r in result if len(r) >=6 and len(r) <= 12]
     result = "\n".join(result)
+    if not result:
+        result = "123456"
     line = line.encode("gbk")
+    if os.path.exists("./output/" + line + ".txt"):
+        print "./output/" + line + ".txt"
+        print "exists"
     open("./output/" + line + ".txt", "w").write(result)
     print "========", line, "=========="
     print result
