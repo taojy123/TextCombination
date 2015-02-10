@@ -1,4 +1,3 @@
-#coding=utf8
 
 import pinyin
 import urllib2
@@ -72,8 +71,6 @@ def decoding(s):
 
 py = pinyin.PinYin()
 py.load_word()
-
-# print py.hanzi2pinyin("欢欢")
 
 t1 = open("./input/1.txt").read()
 t2 = open("./input/2.txt").read()
